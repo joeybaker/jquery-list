@@ -773,10 +773,17 @@ h = {
 
 
 $.fn.list = function(options, values) {
+    if (typeof options == 'string' && options.toLowerCase() == 'add'){
+        this.data('list').add(values)
+        return this
+    }
     return this.each(function() {
-      new List(this, options, values)
-    });
-  };
+        var $this = $(this)
+        $this.data('list', new List(this, options, values))
+
+    })
+}
+
 
 window.List = List;
 window.ListJsHelpers = h;
