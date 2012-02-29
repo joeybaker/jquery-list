@@ -190,16 +190,16 @@ FileETag None
 <IfModule mod_rewrite.c>
 	RewriteEngine On
  	
-	RewriteCond %{HTTPS} !=on
-	RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-	RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+	# RewriteCond %{HTTPS} !=on
+	# RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+	# RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
   
-	RewriteCond %{REQUEST_URI} ^/examples.html$ [NC]
-	RewriteRule ^examples.html$ /examples/standard.html [R=301,L]
+	# RewriteCond %{REQUEST_URI} ^/examples.html$ [NC]
+	# RewriteRule ^examples.html$ /examples/standard.html [R=301,L]
   
-	RewriteCond %{REQUEST_URI} !^/website/
-	RewriteCond %{REQUEST_URI} !^/src/
- 	RewriteRule ^(.*) /website/$1
+	# RewriteCond %{REQUEST_URI} !^/website/
+	# RewriteCond %{REQUEST_URI} !^/src/
+ # 	RewriteRule ^(.*) /website/$1
  	
 </IfModule>
 
