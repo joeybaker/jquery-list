@@ -117,6 +117,25 @@
                         </li>
                     </ul>
                 </div>
+
+                <div id="example-table">
+                    <input class="search" placeholder="Search features" />
+                    <span class="sort btn" data-list-sort="feature">Sort features</span>
+                    <table class="list">
+                        <tr>
+                            <td><strong class="feature">Search</strong></td>
+                            <td class="description">Search through all items.</td>
+                        </tr>
+                        <tr>
+                            <td><strong class="feature">Sort</strong></td>
+                            <td class="description">Sort lists by value that you choose.</td>
+                        </tr>
+                        <tr>
+                            <td><strong class="feature">Filter</strong></td>
+                            <td class="description">Write your own filter functions.</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
 
 
@@ -247,10 +266,22 @@ featureList.add(newFeature);
         ];
         var options = {
         	valueNames: [ 'feature', 'description' ]
+          // , item: '<li>templated: <strong class="feature"></strong> <span class="description"></span></li>'
         };
 
         $('#example-list').list(options, values);
-        // featureList.add({ feature: 'Remove', description:'Remove items whenever you feel like.' });
+        $('#example-list').list('add', { feature: 'Remove', description:'Remove items whenever you feel like.' });
+        $('#example-list').list('add', { feature: 'Test', description:'This is just a test.' });
+
+
+        var options = {
+          valueNames: [ 'feature', 'description' ]
+          , item: '<tr><td><strong class="feature"></strong></td> <td class="description"></td></tr>'
+        };
+
+        $('#example-table').list(options, values);
+        $('#example-table').list('add', { feature: 'Remove', description:'Remove items whenever you feel like.' });
+        $('#example-table').list('add', { feature: 'Test', description:'This is just a test.' });
     </script>
     <!-- End of List.js stuff -->
 
