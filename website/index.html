@@ -116,7 +116,7 @@
 
                 <div id="example-list">
                     <input class="search" placeholder="Search features" />
-                    <span class="sort btn" data-sort="feature">Sort features</span>
+                    <span class="sort btn" data-list-sort="feature">Sort features</span>
                     <ul class="list">
                         <li>
                             <strong class="feature">Search</strong>
@@ -143,7 +143,7 @@
 <pre><code>
 &lt;div id="example-list">
     &lt;input class="search" />
-    &lt;span class="sort" data-sort="feature">Sort features&lt;/span>
+    &lt;span class="sort" data-list-sort="feature">Sort features&lt;/span>
     &lt;ul class="list">
        &lt;li>
            &lt;span class="feature">Search&lt;/span>
@@ -205,7 +205,7 @@ var featureList = new List('example-list', options);
 <pre><code>
 &lt;div id="example-list">
     &lt;input class="search" />
-    &lt;span class="sort" data-sort="feature">Sort features&lt;/span>
+    &lt;span class="sort" data-list-sort="feature">Sort features&lt;/span>
     &lt;ul class="list">
        &lt;li>
            &lt;span class="feature">Search&lt;/span>
@@ -249,9 +249,9 @@ featureList.add(newFeature);
         </div>
     </div>
 </div>
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="js/libs/jquery.js"><\/script>')</script>
-
     <!-- Start of List.js stuff -->
     <script type="text/javascript" src="../src/list.js"></script>
     <script type="text/javascript" type="text/javascript">
@@ -264,14 +264,14 @@ featureList.add(newFeature);
         	valueNames: [ 'feature', 'description' ]
         };
 
-        var featureList = new List('example-list', options, values);
-        featureList.add({ feature: 'Remove', description:'Remove items whenever you feel like.' });
+        $('#example-list').list(options, values);
+        // featureList.add({ feature: 'Remove', description:'Remove items whenever you feel like.' });
     </script>
     <!-- End of List.js stuff -->
 
 
 
-	<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=javve"></script>
-    <script type="text/javascript" src="js/libs/hijs.js"></script>
+	<!-- <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=javve"></script>
+    <script type="text/javascript" src="js/libs/hijs.js"></script> -->
 </body>
 </html>

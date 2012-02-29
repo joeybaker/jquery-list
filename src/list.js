@@ -28,23 +28,24 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
-(function( window, undefined ) {
+;(function( $, window, document, undefined ){
 "use strict";
 var document = window.document,
 	h;
 
-var List = function(id, options, values) {
-    var self = this,
-		templater,
-		init,
-		initialItems,
-		Item,
-		Templater,
-		sortButtons,
-		events = {
-		    'updated': []
-		};
-    this.listContainer = (typeof(id) == 'string') ? document.getElementById(id) : id;
+var List = function(canavs, options, values) {
+    var self = this
+		, templater
+		, init
+		, initialItems
+		, Item
+		, Templater
+		, sortButtons
+		//, events = {
+		//     'updated': []
+		// };
+    this.listContainer = canavs;
+    this.$listContainer = $(canavs)
     this.items = [];
     this.visibleItems = []; // These are the items currently visible
     this.matchingItems = []; // These are the items currently matching filters and search, regadlessof visible count
@@ -68,15 +69,18 @@ var List = function(id, options, values) {
             this.plugins(options.plugins);
         },
         classes: function(options) {
-            options.listClass = options.listClass || 'list';
-            options.searchClass = options.searchClass || 'search';
-            options.sortClass = options.sortClass || 'sort';
+            options.listClass = options.listClass || '.list';
+            options.searchClass = options.searchClass || '.search';
+            options.sortClass = options.sortClass || '.sort';
         },
         callbacks: function(options) {
-            self.list = h.getByClass(options.listClass, self.listContainer, true);
-            h.addEvent(h.getByClass(options.searchClass, self.listContainer), 'keyup', self.search);
-            sortButtons = h.getByClass(options.sortClass, self.listContainer);
-            h.addEvent(sortButtons, 'click', self.sort);
+            self.list = $(options.listClass, self.listContainer).first()
+            var search = $(options.searchClass, self.listContainer)
+
+            self.$listContainer.on('keyup', search, self.search)
+
+            sortButtons = $(options.sortClass, self.listContainer)
+            self.$listContainer.on('click', sortButtons, self.sort);
         },
         items: {
             start: function(values, options) {
@@ -95,7 +99,7 @@ var List = function(id, options, values) {
             },
             get: function() {
                 // return h.getByClass('item', self.list);
-                var nodes = self.list.childNodes,
+                var nodes = self.list.children(),
                 items = [];
                 for (var i = 0, il = nodes.length; i < il; i++) {
                     // Only textnodes have a data attribute
@@ -228,34 +232,35 @@ var List = function(id, options, values) {
     * @sortFunction (optional) Define if natural sorting does not fullfill your needs
     */
     this.sort = function(valueName, options) {
-        var length = self.items.length,
-            value = null,
-            target = valueName.target || valueName.srcElement, /* IE have srcElement */
-            sorting = '',
-            isAsc = false,
-            asc = 'asc',
-            desc = 'desc',
-            options = options || {};
+        var length = self.items.length
+            , value = null
+            , target = valueName.target || valueName.srcElement /* IE have srcElement */
+            , $target = $(target)
+            , sorting = ''
+            , isAsc = false
+            , asc = 'asc'
+            , desc = 'desc'
+            , options = options || {}
 
         if (target === undefined) {
             value = valueName;
             isAsc = options.asc || false;
         } else {
-            value = h.getAttribute(target, 'data-sort');
-            isAsc = h.hasClass(target, asc) ? false : true;
+            value = $target.data('list-sort');
+            isAsc = $target.hasClass(asc) ? false : true;
         }
         for (var i = 0, il = sortButtons.length; i < il; i++) {
-            h.removeClass(sortButtons[i], asc);
-            h.removeClass(sortButtons[i], desc);
+            $(sortButtons[i]).removeClass(asc)
+            $(sortButtons[i]).removeClass(desc)
         }
         if (isAsc) {
             if (target !== undefined) {
-                h.addClass(target, asc);
+                $(target).addClass(asc)
             }
             isAsc = true;
         } else {
             if (target !== undefined) {
-                h.addClass(target, desc);
+                $(target).addClass(desc)
             }
             isAsc = false;
         }
@@ -278,18 +283,18 @@ var List = function(id, options, values) {
     */
     this.search = function(searchString, columns) {
         self.i = 1; // Reset paging
-        var matching = [],
-            found,
-            item,
-            text,
-            values,
-            is,
-            columns = (columns === undefined) ? self.items[0].values() : columns,
-            searchString = (searchString === undefined) ? "" : searchString,
-            target = searchString.target || searchString.srcElement; /* IE have srcElement */
+        var matching = []
+            , found
+            , item
+            , text
+            , values
+            , is = self.items
+            , columns = (columns === undefined) ? self.items[0].values() : columns
+            , searchString = (searchString === undefined) ? "" : searchString
+            , target = searchString.target || searchString.srcElement /* IE have srcElement */
+            , $target = $(target, self.listContainer)
 
         searchString = (target === undefined) ? (""+searchString).toLowerCase() : ""+target.value.toLowerCase();
-        is = self.items;
         // Escape regular expression characters
         searchString = searchString.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 
@@ -369,16 +374,16 @@ var List = function(id, options, values) {
         self.items = [];
     };
 
-    this.on = function(event, callback) {
-        events[event].push(callback);
-    };
+    // this.on = function(event, callback) {
+    //     events[event].push(callback);
+    // };
 
-    var trigger = function(event) {
-        var i = events[event].length;
-        while(i--) {
-            events[event][i]();
-        }
-    };
+    // var trigger = function(event) {
+    //     var i = events[event].length;
+    //     while(i--) {
+    //         events[event][i]();
+    //     }
+    // };
 
     var reset = {
         filter: function() {
@@ -417,7 +422,7 @@ var List = function(id, options, values) {
                 is[i].hide();
 			}
         }
-        trigger('updated');
+        self.$listContainer.trigger('updated');
     };
 
     Item = function(initValues, element, notCreate) {
@@ -493,13 +498,13 @@ List.prototype.templateEngines = {};
 List.prototype.plugins = {};
 
 List.prototype.templateEngines.standard = function(list, settings) {
-    var listSource = h.getByClass(settings.listClass, list.listContainer, true),
+    var listSource = $(settings.listClass, list.listContainer).first(),
         itemSource = getItemSource(settings.item),
         templater = this;
 
     function getItemSource(item) {
         if (item === undefined) {
-            var nodes = listSource.childNodes,
+            var nodes = listSource.children(),
                 items = [];
 
             for (var i = 0, il = nodes.length; i < il; i++) {
@@ -509,7 +514,7 @@ List.prototype.templateEngines.standard = function(list, settings) {
                 }
             }
             return null;
-        } else if (item.indexOf("<") !== -1) { // Try create html element of list, do not work for tables!!
+        } else if (item.indexOf("<") !== -1) { // Try create html element of list, do not work for tables!! TODO!
             var div = document.createElement('div');
             div.innerHTML = item;
             return div.firstChild;
@@ -531,7 +536,7 @@ List.prototype.templateEngines.standard = function(list, settings) {
         ensure.created(item);
         var values = {};
         for(var i = 0, il = valueNames.length; i < il; i++) {
-            values[valueNames[i]] = h.getByClass(valueNames[i], item.elm)[0].innerHTML;
+            values[valueNames[i]] = $('.' + valueNames[i], item.elm).first().html();
         }
         return values;
     };
@@ -542,9 +547,9 @@ List.prototype.templateEngines.standard = function(list, settings) {
         for(var v in values) {
             if (values.hasOwnProperty(v)) {
                 // TODO speed up if possible
-                var elm = h.getByClass(v, item.elm, true);
+                var elm = $('.' + v, item.elm).first();
                 if (elm) {
-                    elm.innerHTML = values[v];
+                    elm.html(values[v]);
                 }
             }
         }
@@ -562,24 +567,24 @@ List.prototype.templateEngines.standard = function(list, settings) {
         templater.set(item, item.values());
     };
     this.remove = function(item) {
-        listSource.removeChild(item.elm);
+        $(item.elm, listSource).remove();
     };
+    // TODO: showing and hiding should show, and hide
     this.show = function(item) {
         ensure.created(item);
-        listSource.appendChild(item.elm);
+        listSource.append(item.elm);
+        // $(item.elm, listSource).show()
     };
     this.hide = function(item) {
         if (item.elm !== undefined && item.elm.parentNode === listSource) {
-            listSource.removeChild(item.elm);
+            $(item.elm, listSource).remove();
         }
     };
     this.clear = function() {
-        /* .innerHTML = ''; fucks up IE */
-        if (listSource.hasChildNodes()) {
-            while (listSource.childNodes.length >= 1)
-            {
-                listSource.removeChild(listSource.firstChild);
-            }
+        var children = listSource.children()
+
+        if (children.length > 0) {
+            children.remove()
         }
     };
 };
@@ -595,109 +600,109 @@ h = {
     * if it exists. Modified version of Dustin Diaz function:
     * http://www.dustindiaz.com/getelementsbyclass
     */
-    getByClass: (function() {
-        if (document.getElementsByClassName) {
-            return function(searchClass,node,single) {
-                if (single) {
-                    return node.getElementsByClassName(searchClass)[0];
-                } else {
-                    return node.getElementsByClassName(searchClass);
-                }
-            };
-        } else {
-            return function(searchClass,node,single) {
-                var classElements = [],
-                    tag = '*';
-                if (node == null) {
-                    node = document;
-                }
-                var els = node.getElementsByTagName(tag);
-                var elsLen = els.length;
-                var pattern = new RegExp("(^|\\s)"+searchClass+"(\\s|$)");
-                for (var i = 0, j = 0; i < elsLen; i++) {
-                    if ( pattern.test(els[i].className) ) {
-                        if (single) {
-                            return els[i];
-                        } else {
-                            classElements[j] = els[i];
-                            j++;
-                        }
-                    }
-                }
-                return classElements;
-            };
-        }
-    })(),
-    /* (elm, 'event' callback) Source: http://net.tutsplus.com/tutorials/javascript-ajax/javascript-from-null-cross-browser-event-binding/ */
-    addEvent: (function( window, document ) {
-        if ( document.addEventListener ) {
-            return function( elem, type, cb ) {
-                if ((elem && !(elem instanceof Array) && !elem.length && !h.isNodeList(elem) && (elem.length !== 0)) || elem === window ) {
-                    elem.addEventListener(type, cb, false );
-                } else if ( elem && elem[0] !== undefined ) {
-                    var len = elem.length;
-                    for ( var i = 0; i < len; i++ ) {
-                        h.addEvent(elem[i], type, cb);
-                    }
-                }
-            };
-        }
-        else if ( document.attachEvent ) {
-            return function ( elem, type, cb ) {
-                if ((elem && !(elem instanceof Array) && !elem.length && !h.isNodeList(elem) && (elem.length !== 0)) || elem === window ) {
-                    elem.attachEvent( 'on' + type, function() { return cb.call(elem, window.event); } );
-                } else if ( elem && elem[0] !== undefined ) {
-                    var len = elem.length;
-                    for ( var i = 0; i < len; i++ ) {
-                        h.addEvent( elem[i], type, cb );
-                    }
-                }
-            };
-        }
-    })(this, document),
-    /* (elm, attribute) Source: http://stackoverflow.com/questions/3755227/cross-browser-javascript-getattribute-method */
-    getAttribute: function(ele, attr) {
-        var result = (ele.getAttribute && ele.getAttribute(attr)) || null;
-        if( !result ) {
-            var attrs = ele.attributes;
-            var length = attrs.length;
-            for(var i = 0; i < length; i++) {
-                if (attr[i] !== undefined) {
-                    if(attr[i].nodeName === attr) {
-                        result = attr[i].nodeValue;
-                    }
-                }
-            }
-        }
-        return result;
-    },
-    /* http://stackoverflow.com/questions/7238177/detect-htmlcollection-nodelist-in-javascript */
-    isNodeList: function(nodes) {
-        var result = Object.prototype.toString.call(nodes);
-        if (typeof nodes === 'object' && /^\[object (HTMLCollection|NodeList|Object)\]$/.test(result) && (nodes.length == 0 || (typeof node === "object" && nodes[0].nodeType > 0))) {
-            return true;
-        }
-        return false;
-    },
-    hasClass: function(ele, classN) {
-        var classes = this.getAttribute(ele, 'class') || this.getAttribute(ele, 'className');
-        return (classes.search(classN) > -1);
-    },
-    addClass: function(ele, classN) {
-        if (!this.hasClass(ele, classN)) {
-            var classes = this.getAttribute(ele, 'class') || this.getAttribute(ele, 'className');
-            classes = classes + ' ' + classN + ' ';
-            classes = classes.replace(/\s{2,}/g, ' ');
-            ele.setAttribute('class', classes);
-        }
-    },
-    removeClass: function(ele, classN) {
-        if (this.hasClass(ele, classN)) {
-            var classes = this.getAttribute(ele, 'class') || this.getAttribute(ele, 'className');
-            classes = classes.replace(classN, '');
-            ele.setAttribute('class', classes);
-        }
-    },
+    // getByClass: (function() {
+    //     if (document.getElementsByClassName) {
+    //         return function(searchClass,node,single) {
+    //             if (single) {
+    //                 return node.getElementsByClassName(searchClass)[0];
+    //             } else {
+    //                 return node.getElementsByClassName(searchClass);
+    //             }
+    //         };
+    //     } else {
+    //         return function(searchClass,node,single) {
+    //             var classElements = [],
+    //                 tag = '*';
+    //             if (node == null) {
+    //                 node = document;
+    //             }
+    //             var els = node.getElementsByTagName(tag);
+    //             var elsLen = els.length;
+    //             var pattern = new RegExp("(^|\\s)"+searchClass+"(\\s|$)");
+    //             for (var i = 0, j = 0; i < elsLen; i++) {
+    //                 if ( pattern.test(els[i].className) ) {
+    //                     if (single) {
+    //                         return els[i];
+    //                     } else {
+    //                         classElements[j] = els[i];
+    //                         j++;
+    //                     }
+    //                 }
+    //             }
+    //             return classElements;
+    //         };
+    //     }
+    // })(),
+    // /* (elm, 'event' callback) Source: http://net.tutsplus.com/tutorials/javascript-ajax/javascript-from-null-cross-browser-event-binding/ */
+    // addEvent: (function( window, document ) {
+    //     if ( document.addEventListener ) {
+    //         return function( elem, type, cb ) {
+    //             if ((elem && !(elem instanceof Array) && !elem.length && !h.isNodeList(elem) && (elem.length !== 0)) || elem === window ) {
+    //                 elem.addEventListener(type, cb, false );
+    //             } else if ( elem && elem[0] !== undefined ) {
+    //                 var len = elem.length;
+    //                 for ( var i = 0; i < len; i++ ) {
+    //                     h.addEvent(elem[i], type, cb);
+    //                 }
+    //             }
+    //         };
+    //     }
+    //     else if ( document.attachEvent ) {
+    //         return function ( elem, type, cb ) {
+    //             if ((elem && !(elem instanceof Array) && !elem.length && !h.isNodeList(elem) && (elem.length !== 0)) || elem === window ) {
+    //                 elem.attachEvent( 'on' + type, function() { return cb.call(elem, window.event); } );
+    //             } else if ( elem && elem[0] !== undefined ) {
+    //                 var len = elem.length;
+    //                 for ( var i = 0; i < len; i++ ) {
+    //                     h.addEvent( elem[i], type, cb );
+    //                 }
+    //             }
+    //         };
+    //     }
+    // })(this, document),
+    // /* (elm, attribute) Source: http://stackoverflow.com/questions/3755227/cross-browser-javascript-getattribute-method */
+    // getAttribute: function(ele, attr) {
+    //     var result = (ele.getAttribute && ele.getAttribute(attr)) || null;
+    //     if( !result ) {
+    //         var attrs = ele.attributes;
+    //         var length = attrs.length;
+    //         for(var i = 0; i < length; i++) {
+    //             if (attr[i] !== undefined) {
+    //                 if(attr[i].nodeName === attr) {
+    //                     result = attr[i].nodeValue;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return result;
+    // },
+    // /* http://stackoverflow.com/questions/7238177/detect-htmlcollection-nodelist-in-javascript */
+    // isNodeList: function(nodes) {
+    //     var result = Object.prototype.toString.call(nodes);
+    //     if (typeof nodes === 'object' && /^\[object (HTMLCollection|NodeList|Object)\]$/.test(result) && (nodes.length == 0 || (typeof node === "object" && nodes[0].nodeType > 0))) {
+    //         return true;
+    //     }
+    //     return false;
+    // },
+    // hasClass: function(ele, classN) {
+    //     var classes = this.getAttribute(ele, 'class') || this.getAttribute(ele, 'className');
+    //     return (classes.search(classN) > -1);
+    // },
+    // addClass: function(ele, classN) {
+    //     if (!this.hasClass(ele, classN)) {
+    //         var classes = this.getAttribute(ele, 'class') || this.getAttribute(ele, 'className');
+    //         classes = classes + ' ' + classN + ' ';
+    //         classes = classes.replace(/\s{2,}/g, ' ');
+    //         ele.setAttribute('class', classes);
+    //     }
+    // },
+    // removeClass: function(ele, classN) {
+    //     if (this.hasClass(ele, classN)) {
+    //         var classes = this.getAttribute(ele, 'class') || this.getAttribute(ele, 'className');
+    //         classes = classes.replace(classN, '');
+    //         ele.setAttribute('class', classes);
+    //     }
+    // },
     /*
     * The sort function. From http://my.opera.com/GreyWyvern/blog/show.dml/1671288
     */
@@ -757,6 +762,13 @@ h = {
     }
 };
 
+
+$.fn.list = function(options, values) {
+    return this.each(function() {
+      new List(this, options, values)
+    });
+  };
+
 window.List = List;
 window.ListJsHelpers = h;
-})(window);
+})( jQuery, window , document );
