@@ -99,8 +99,9 @@ var List = function(canavs, options, values) {
             },
             get: function() {
                 // return h.getByClass('item', self.list);
-                var nodes = self.list.children(),
-                items = [];
+                var nodes = self.list.is('ul') ? self.list.children('li') : self.list.find('tr')
+                , items = []
+
                 for (var i = 0, il = nodes.length; i < il; i++) {
                     // Only textnodes have a data attribute
                     if (nodes[i].data === undefined) {
@@ -498,28 +499,37 @@ List.prototype.templateEngines = {};
 List.prototype.plugins = {};
 
 List.prototype.templateEngines.standard = function(list, settings) {
-    var listSource = $(settings.listClass, list.listContainer).first(),
-        itemSource = getItemSource(settings.item),
-        templater = this;
+    var listSource = $(settings.listClass, list.listContainer).first()
+        , itemSource = getItemSource(settings.item)
+        , templater = this
 
     function getItemSource(item) {
+        // no item template was set by the user
         if (item === undefined) {
-            var nodes = listSource.children(),
-                items = [];
+            var nodes = listSource.is('ul') ? listSource.children('li') : listSource.find('tr')
+                // , items = []
 
-            for (var i = 0, il = nodes.length; i < il; i++) {
-                // Only textnodes have a data attribute
-                if (nodes[i].data === undefined) {
-                    return nodes[i];
-                }
-            }
-            return null;
-        } else if (item.indexOf("<") !== -1) { // Try create html element of list, do not work for tables!! TODO!
-            var div = document.createElement('div');
-            div.innerHTML = item;
-            return div.firstChild;
-        } else {
-            return document.getElementById(settings.item);
+            return $(nodes).first()
+
+            // for (var i = 0, il = nodes.length; i < il; i++) {
+            //     // Only textnodes have a data attribute
+            //     if (nodes[i].data === undefined) {
+            //         return $(nodes[i]);
+            //     }
+            // }
+            // return null;
+        }
+
+        // item has html in it
+        else if (item.indexOf("<") !== -1) { // Try create html element of list, do not work for tables!! TODO!
+            // var div = document.createElement('div');
+            // div.innerHTML = item;
+            // return div.firstChild;
+
+            return $(item)
+        }
+        else {
+            return $(settings.item)
         }
     }
 
@@ -561,8 +571,7 @@ List.prototype.templateEngines.standard = function(list, settings) {
         }
         /* If item source does not exists, use the first item in list as
         source for new items */
-        var newItem = itemSource.cloneNode(true);
-        newItem.id = "";
+        var newItem = itemSource.clone();
         item.elm = newItem;
         templater.set(item, item.values());
     };
