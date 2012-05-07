@@ -44,19 +44,19 @@ var List = function(canavs, options, values) {
 		//, events = {
 		//     'updated': []
 		// };
-    this.listContainer = canavs;
+    this.listContainer = canavs
     this.$listContainer = $(canavs)
-    this.items = [];
-    this.visibleItems = []; // These are the items currently visible
-    this.matchingItems = []; // These are the items currently matching filters and search, regadlessof visible count
-    this.searched = false;
-    this.filtered = false;
+    this.items = []
+    this.visibleItems = [] // These are the items currently visible
+    this.matchingItems = [] // These are the items currently matching filters and search, regadlessof visible count
+    this.searched = false
+    this.filtered = false
 
-    this.list = null;
-    this.templateEngines = {};
+    this.list = null
+    this.templateEngines = {}
     
-    this.page = options.page || 200;
-    this.i = options.i || 1;
+    this.page = options.page || 200
+    this.i = options.i || 1
 
     init = {
         start: function(values, options) {
@@ -75,12 +75,9 @@ var List = function(canavs, options, values) {
         },
         callbacks: function(options) {
             self.list = $(options.listClass, self.listContainer).first()
-            var search = $(options.searchClass, self.listContainer)
 
-            self.$listContainer.on('keyup', search, self.search)
-
-            sortButtons = $(options.sortClass, self.listContainer)
-            self.$listContainer.on('click', sortButtons, self.sort);
+            self.$listContainer.on('keyup', options.searchClass, self.search)
+            self.$listContainer.on('click', options.sortClass, self.sort);
         },
         items: {
             start: function(values, options) {
@@ -124,8 +121,8 @@ var List = function(canavs, options, values) {
                         },
                     10);
                 } else {
-                    self.update();
-                    // TODO: Add indexed callback
+                    self.update()
+                    self.$listContainer.trigger('indexed')
                 }
             }
         },
@@ -250,18 +247,17 @@ var List = function(canavs, options, values) {
             value = $target.data('list-sort');
             isAsc = $target.hasClass(asc) ? false : true;
         }
-        for (var i = 0, il = sortButtons.length; i < il; i++) {
-            $(sortButtons[i]).removeClass(asc)
-            $(sortButtons[i]).removeClass(desc)
-        }
+
+        $(this).removeClass(asc).removeClass(desc)
+
         if (isAsc) {
             if (target !== undefined) {
-                $(target).addClass(asc)
+                $target.addClass(asc)
             }
             isAsc = true;
         } else {
             if (target !== undefined) {
-                $(target).addClass(desc)
+                $target.addClass(desc)
             }
             isAsc = false;
         }
